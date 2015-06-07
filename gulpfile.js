@@ -2,9 +2,33 @@
 'use strict';
 // generated on 2015-06-06 using generator-gulp-webapp 0.3.0
 var gulp = require('gulp');
+var nodemon = require('gulp-nodemon');
 var $ = require('gulp-load-plugins')();
 var browserSync = require('browser-sync');
 var reload = browserSync.reload;
+
+// browser-sync-nodemon-expressjs
+var BROWSER_SYNC_RELOAD_DELAY = 500;
+gulp.task('nodemon', function (cb) {
+  var called = false;
+  return nodemon({
+    script: 'app.js',
+    watch: ['app.js']
+  })
+  .on('start', function onStart() {
+    // ensure start only got called once
+    if (!called) { cb(); }
+    called = true;
+  })
+  .on('restart', function onRestart() {
+    // reload connected browsers after a slight delay
+    setTimeout(function reload() {
+      browserSync.reload({
+        stream: false   //
+      });
+    }, BROWSER_SYNC_RELOAD_DELAY);
+  });
+});
 
 gulp.task('styles', function () {
   return gulp.src('app/styles/main.css')
@@ -69,16 +93,17 @@ gulp.task('extras', function () {
 
 gulp.task('clean', require('del').bind(null, ['.tmp', 'dist']));
 
-gulp.task('serve', ['styles', 'fonts'], function () {
+gulp.task('serve', ['styles', 'fonts', 'nodemon'], function () {
   browserSync({
     notify: false,
     port: 9000,
-    server: {
-      baseDir: ['.tmp', 'app'],
-      routes: {
-        '/bower_components': 'bower_components'
-      }
-    }
+    proxy: 'http://localhost:3000'
+    // server: {
+    //   baseDir: ['.tmp', 'app'],
+    //   routes: {
+    //     '/bower_components': 'bower_components'
+    //   }
+    // }
   });
 
   // watch for changes
