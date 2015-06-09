@@ -31,7 +31,7 @@
    * The routing strategy used by the application. Refer to MithrilJS docs for further info
    * @type {String}
    */
-  app.routingStrategy = 'hash';
+  app.routingStrategy = 'pathname';
 
   /**
    * The default application route. The App will load the module associated
